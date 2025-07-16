@@ -4,6 +4,10 @@ import { StepIndicator } from '@/components/shared/StepIndicator';
 import { TextInputStep } from '@/components/steps/TextInputStep';
 import { ProcessingStep } from '@/components/steps/ProcessingStep';
 import { VoiceGenerationStep } from '@/components/steps/VoiceGenerationStep';
+import { ImageGenerationStep } from '@/components/steps/ImageGenerationStep';
+import { MusicUploadStep } from '@/components/steps/MusicUploadStep';
+import { VideoGenerationStep } from '@/components/steps/VideoGenerationStep';
+import { PreviewStep } from '@/components/steps/PreviewStep';
 import { Card } from '@/components/ui/card';
 import { Video, Sparkles, Wand2 } from 'lucide-react';
 
@@ -28,12 +32,20 @@ const VideoGenieContent: React.FC = () => {
         return <ProcessingStep />;
       case 2:
         return <VoiceGenerationStep />;
+      case 3:
+        return <ImageGenerationStep />;
+      case 4:
+        return <MusicUploadStep />;
+      case 5:
+        return <VideoGenerationStep />;
+      case 6:
+        return <PreviewStep />;
       default:
         return (
           <div className="text-center py-12">
             <Wand2 className="w-12 h-12 mx-auto mb-4 text-primary animate-float" />
-            <h3 className="text-xl font-semibold mb-2">Coming Soon</h3>
-            <p className="text-muted-foreground">This step is under development</p>
+            <h3 className="text-xl font-semibold mb-2">Step Not Found</h3>
+            <p className="text-muted-foreground">Please navigate to a valid step</p>
           </div>
         );
     }

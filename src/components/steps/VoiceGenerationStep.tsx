@@ -4,7 +4,15 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Mic, Play, Pause, Download, ArrowRight, Volume2 } from 'lucide-react';
+import { 
+  Mic, 
+  Play, 
+  Pause, 
+  Download, 
+  ArrowRight,
+  ArrowLeft,
+  Volume2 
+} from 'lucide-react';
 import { useVideo } from '@/contexts/VideoContext';
 import { toast } from '@/hooks/use-toast';
 import { VoiceOption } from '@/types/video';
@@ -94,6 +102,10 @@ export const VoiceGenerationStep: React.FC = () => {
       title: "Voice Preview",
       description: `Playing preview for ${voiceOptions.find(v => v.id === voiceId)?.name}`,
     });
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep(currentStep - 1);
   };
 
   const handleNext = () => {
@@ -252,7 +264,16 @@ export const VoiceGenerationStep: React.FC = () => {
             )}
 
             {generatedAudio && (
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-between pt-4">
+                <Button
+                  onClick={handlePrevious}
+                  variant="outline"
+                  size="lg"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Previous
+                </Button>
+
                 <Button
                   onClick={handleNext}
                   size="lg"
@@ -266,6 +287,30 @@ export const VoiceGenerationStep: React.FC = () => {
             )}
           </CardContent>
         </Card>
+
+        {!generatedAudio && (
+          <div className="flex justify-between pt-4">
+            <Button
+              onClick={handlePrevious}
+              variant="outline"
+              size="lg"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+
+            <Button
+              onClick={handleNext}
+              size="lg"
+              variant="hero"
+              className="min-w-32"
+              disabled={!generatedAudio}
+            >
+              Next Step
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

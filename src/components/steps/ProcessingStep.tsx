@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Brain, Loader2, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { Brain, Loader2, CheckCircle, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useVideo } from '@/contexts/VideoContext';
 import { toast } from '@/hooks/use-toast';
 
@@ -102,6 +102,10 @@ export const ProcessingStep: React.FC = () => {
     return new Promise(resolve => setTimeout(resolve, duration));
   };
 
+  const handlePrevious = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
   const handleNext = () => {
     setCurrentStep(currentStep + 1);
   };
@@ -188,7 +192,16 @@ export const ProcessingStep: React.FC = () => {
         </Card>
 
         {isProcessingComplete && (
-          <div className="flex justify-center animate-scale-in">
+          <div className="flex justify-between pt-4 animate-scale-in">
+            <Button
+              onClick={handlePrevious}
+              variant="outline"
+              size="lg"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+
             <Button
               onClick={handleNext}
               size="lg"
@@ -197,6 +210,27 @@ export const ProcessingStep: React.FC = () => {
             >
               Next Step
               <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        )}
+
+        {!isProcessingComplete && (
+          <div className="flex justify-between pt-4">
+            <Button
+              onClick={handlePrevious}
+              variant="outline"
+              size="lg"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              disabled
+            >
+              Processing...
             </Button>
           </div>
         )}
