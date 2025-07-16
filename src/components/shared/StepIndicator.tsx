@@ -23,7 +23,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
     <div className="w-full max-w-4xl mx-auto mb-8">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => (
-          <React.Fragment key={step.id}>
+          <div key={step.id} className="flex items-center">
             <div className="flex flex-col items-center space-y-2">
               <div
                 className={cn(
@@ -60,7 +60,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
             {index < steps.length - 1 && (
               <div className="flex-1 h-px mx-4 bg-gradient-to-r from-muted via-muted-foreground/30 to-muted" />
             )}
-          </React.Fragment>
+          </div>
         ))}
       </div>
     </div>

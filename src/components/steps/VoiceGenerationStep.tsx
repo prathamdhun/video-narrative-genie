@@ -55,33 +55,37 @@ export const VoiceGenerationStep: React.FC = () => {
       const selectedVoiceOption = voiceOptions.find(v => v.id === selectedVoice);
       if (!selectedVoiceOption) throw new Error('Voice not found');
 
-      // Use ResponsiveVoice to generate speech
-      await new Promise<void>((resolve, reject) => {
-        if (typeof window !== 'undefined' && (window as any).responsiveVoice) {
-          (window as any).responsiveVoice.speak(
-            voiceText,
-            selectedVoiceOption.responsiveVoiceName,
-            {
-              onend: () => {
-                const audioUrl = `generated-audio-${Date.now()}.mp3`;
-                setProject(prev => ({
-                  ...prev,
-                  text: voiceText, // Update project text with edited voice text
-                  audioUrl,
-                  voiceGender: selectedVoiceOption.gender,
-                  voiceLanguage: selectedVoiceOption.language
-                }));
-                setGeneratedAudio(audioUrl);
-                setIsEditing(false);
-                resolve();
-              },
-              onerror: () => reject(new Error('Voice generation failed'))
-            }
-          );
-        } else {
-          reject(new Error('ResponsiveVoice not loaded'));
-        }
+      // Generate voice using OpenAI TTS API
+      const response = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer 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`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          input: voiceText,
+          voice: selectedVoiceOption.gender === 'female' ? 'nova' : 'onyx',
+          response_format: 'mp3'
+        })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate voice');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      setProject(prev => ({
+        ...prev,
+        text: voiceText,
+        audioUrl,
+        voiceGender: selectedVoiceOption.gender,
+        voiceLanguage: selectedVoiceOption.language
+      }));
+      setGeneratedAudio(audioUrl);
+      setIsEditing(false);
       
       toast({
         title: "Divine Voiceover Generated",

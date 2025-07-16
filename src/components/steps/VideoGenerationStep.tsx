@@ -104,13 +104,12 @@ export const VideoGenerationStep: React.FC = () => {
         scenes: [
           {
             narration: project.text,
-            background_image: project.imageUrl,
-            background_music: project.musicUrl || "devotional_instrumental",
+            background_music: project.musicUrl,
             voice_settings: {
               language: project.voiceLanguage,
               gender: project.voiceGender,
               speed: 0.9,
-              pitch: 1.0
+              pitch: 1
             },
             visual_effects: {
               fade_in: true,
