@@ -98,12 +98,61 @@ export const VideoGenerationStep: React.FC = () => {
       const apiKey = apiKeys.json2video[0];
       if (!apiKey) throw new Error('json2video API key not found');
 
+      // Get clean text for OpenAI processing
+      const getCleanText = (text: string) => {
+        try {
+          const parsed = JSON.parse(text);
+          if (parsed.content) return parsed.content;
+          if (parsed.text) return parsed.text;
+          return text;
+        } catch {
+          return text;
+        }
+      };
+
+      const cleanText = getCleanText(project.text);
+
+      // Use OpenAI to generate video template
+      const openaiApiKey = apiKeys.openai[0];
+      if (!openaiApiKey) throw new Error('OpenAI API key not found');
+
+      // Generate video template using OpenAI
+      const templateResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a video template generator. Create a JSON template for video generation based on the provided text.'
+            },
+            {
+              role: 'user',
+              content: `Create a video template for this text: "${cleanText}". Include visual effects, transitions, and Hindu devotional elements.`
+            }
+          ],
+          max_tokens: 1000
+        })
+      });
+
+      if (!templateResponse.ok) {
+        throw new Error('Failed to generate video template');
+      }
+
+      const templateData = await templateResponse.json();
+      const videoTemplate = templateData.choices[0].message.content;
+
       // Real json2video API call with Hindu devotional configuration
       const videoConfig = {
         template: "hindu_devotional",
         scenes: [
           {
-            narration: project.text,
+            narration: cleanText,
+            voice_url: project.audioUrl, // Use the generated voice from ResponsiveVoice
             background_music: project.musicUrl,
             voice_settings: {
               language: project.voiceLanguage,
@@ -130,7 +179,7 @@ export const VideoGenerationStep: React.FC = () => {
           format: "mp4",
           quality: "1080p",
           duration: project.videoDuration || 30,
-          aspect_ratio: "16:9",
+          aspect_ratio: project.videoAspectRatio || "16:9",
           theme: "hindu_devotional"
         }
       };
@@ -235,20 +284,6 @@ export const VideoGenerationStep: React.FC = () => {
         ? { ...s, status: 'completed', progress: 100 }
         : s
     ));
-  };
-
-  const processVideoGeneration = async (config: any) => {
-    // Simulate json2video API processing with enhanced Hindu content features
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    return {
-      videoUrl: `https://example.com/generated-hindu-devotional-video-${Date.now()}.mp4`,
-      duration: 120,
-      size: '45MB',
-      template_used: 'hindu_devotional',
-      effects_applied: ['sacred_particles', 'golden_glow', 'devotional_transitions', 'om_overlay', 'divine_light_rays'],
-      religious_blessings: ['lotus_petals', 'sacred_geometry', 'temple_bells', 'divine_atmosphere']
-    };
   };
 
   const getStepIcon = (status: string, stepId: string) => {
@@ -400,6 +435,17 @@ export const VideoGenerationStep: React.FC = () => {
                     {project.musicUrl ? 'Sacred audio' : 'Divine instrumental'}
                   </p>
                 </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-accent/50 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Video className="w-4 h-4 text-primary" />
+                <span className="font-medium text-sm">Video Settings</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+                <div>Duration: {project.videoDuration} seconds</div>
+                <div>Aspect Ratio: {project.videoAspectRatio}</div>
               </div>
             </div>
           </CardContent>

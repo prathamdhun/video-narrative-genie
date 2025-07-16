@@ -35,6 +35,7 @@ export const VideoProvider: React.FC<VideoProviderProps> = ({ children }) => {
     voiceGender: 'female',
     voiceLanguage: 'en-IN',
     videoDuration: 30, // default 30 seconds
+    videoAspectRatio: '16:9', // default aspect ratio
     generateImage: true, // default true
     status: 'text-input',
     createdAt: new Date(),

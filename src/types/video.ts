@@ -8,6 +8,7 @@ export interface VideoProject {
   musicUrl?: string;
   videoUrl?: string;
   videoDuration?: number; // in seconds
+  videoAspectRatio?: '16:9' | '9:16'; // aspect ratio options
   generateImage?: boolean; // make image generation optional
   status: 'text-input' | 'processing' | 'voice-generation' | 'image-generation' | 'music-upload' | 'video-generation' | 'completed';
   createdAt: Date;

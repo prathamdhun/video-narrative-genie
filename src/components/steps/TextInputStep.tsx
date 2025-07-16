@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -5,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { FileText, ArrowRight, Sparkles, Timer, Image } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { FileText, ArrowRight, Sparkles, Timer, Image, Monitor } from 'lucide-react';
 import { useVideo } from '@/contexts/VideoContext';
 import { toast } from '@/hooks/use-toast';
 
@@ -14,6 +16,7 @@ export const TextInputStep: React.FC = () => {
   const [text, setText] = useState(project.text || '');
   const [videoDuration, setVideoDuration] = useState(project.videoDuration || 30);
   const [generateImage, setGenerateImage] = useState(project.generateImage !== false);
+  const [videoAspectRatio, setVideoAspectRatio] = useState<'16:9' | '9:16'>(project.videoAspectRatio || '16:9');
 
   const handleNext = () => {
     if (!text.trim()) {
@@ -39,6 +42,7 @@ export const TextInputStep: React.FC = () => {
       text,
       videoDuration,
       generateImage,
+      videoAspectRatio,
       status: 'processing',
       updatedAt: new Date(),
     }));
@@ -101,7 +105,7 @@ export const TextInputStep: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="duration" className="flex items-center gap-2">
                 <Timer className="w-4 h-4 text-primary" />
@@ -137,6 +141,26 @@ export const TextInputStep: React.FC = () => {
               </div>
               <p className="text-xs text-muted-foreground">
                 Auto-generate background visuals
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Monitor className="w-4 h-4 text-primary" />
+                Video Aspect Ratio
+              </Label>
+              <RadioGroup value={videoAspectRatio} onValueChange={(value: '16:9' | '9:16') => setVideoAspectRatio(value)}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="16:9" id="16-9" />
+                  <Label htmlFor="16-9" className="text-sm">16:9 (Landscape)</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="9:16" id="9-16" />
+                  <Label htmlFor="9-16" className="text-sm">9:16 (Portrait)</Label>
+                </div>
+              </RadioGroup>
+              <p className="text-xs text-muted-foreground">
+                Choose video orientation
               </p>
             </div>
           </div>
