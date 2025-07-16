@@ -62,7 +62,7 @@ export const ImageGenerationStep: React.FC = () => {
       const apiKey = apiKeys.openai[0];
       if (!apiKey) throw new Error('OpenAI API key not found');
 
-      // Enhanced prompt for Hindu religious imagery
+      // Real OpenAI API call for Hindu religious imagery
       const prompt = `Create a stunning, devotional Hindu religious background image based on this content: "${project.text}". 
 
 Style requirements:
@@ -80,11 +80,28 @@ Style requirements:
 ${imagePrompt ? `Additional elements: ${imagePrompt}` : ''}
 
 The image should evoke feelings of devotion, peace, and spiritual connection suitable for Hindu religious content with divine presence and sacred atmosphere.`;
-      
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      
-      // In real implementation, call OpenAI DALL-E API
-      const imageUrl = `/images/hindu-devotional-${Date.now()}.jpg`;
+
+      const response = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'dall-e-3',
+          prompt: prompt,
+          n: 1,
+          size: '1792x1024',
+          quality: 'hd'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('OpenAI API call failed');
+      }
+
+      const data = await response.json();
+      const imageUrl = data.data[0].url;
       
       setProject(prev => ({
         ...prev,

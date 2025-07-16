@@ -98,7 +98,7 @@ export const VideoGenerationStep: React.FC = () => {
       const apiKey = apiKeys.json2video[0];
       if (!apiKey) throw new Error('json2video API key not found');
 
-      // Enhanced json2video configuration for Hindu religious content
+      // Real json2video API call with Hindu devotional configuration
       const videoConfig = {
         template: "hindu_devotional",
         scenes: [
@@ -141,15 +141,50 @@ export const VideoGenerationStep: React.FC = () => {
         await processVideoStep(i, videoConfig);
       }
 
-      const response = await processVideoGeneration(videoConfig);
+      // Real json2video API call
+      const response = await fetch('https://api.json2video.com/v2/movies', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(videoConfig)
+      });
 
-      // Mark video as completed
-      setProject(prev => ({
-        ...prev,
-        videoUrl: response.videoUrl,
-        status: 'completed',
-        updatedAt: new Date(),
-      }));
+      if (!response.ok) {
+        // Try with second API key
+        const secondApiKey = apiKeys.json2video[1];
+        if (secondApiKey) {
+          const retryResponse = await fetch('https://api.json2video.com/v2/movies', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${secondApiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(videoConfig)
+          });
+          
+          if (!retryResponse.ok) throw new Error('Both json2video API keys failed');
+          
+          const data = await retryResponse.json();
+          setProject(prev => ({
+            ...prev,
+            videoUrl: data.url,
+            status: 'completed',
+            updatedAt: new Date(),
+          }));
+        } else {
+          throw new Error('json2video API call failed');
+        }
+      } else {
+        const data = await response.json();
+        setProject(prev => ({
+          ...prev,
+          videoUrl: data.url,
+          status: 'completed',
+          updatedAt: new Date(),
+        }));
+      }
 
       toast({
         title: "Divine Video Created Successfully! 🙏",

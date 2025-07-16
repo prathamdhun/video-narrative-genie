@@ -29,34 +29,79 @@ export const ProcessingStep: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Enhanced Gemini API call for Hindu religious content analysis
+      // Real Gemini API call for Hindu religious content analysis
       await processStep('text-analysis', async () => {
         const apiKey = apiKeys.gemini[0];
         if (!apiKey) throw new Error('Gemini API key not found');
         
-        // Prepare the prompt for Hindu religious video content
-        const prompt = `You are a creative video generation assistant specialized in making short-form religious content for Hindu audiences.
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `आप एक हिंदू धार्मिक वीडियो सामग्री विशेषज्ञ हैं। इस टेक्स्ट का विश्लेषण करके हिंदी में भावनात्मक और आध्यात्मिक स्क्रिप्ट बनाएं:
 
-Goal: Analyze this text and generate a detailed JSON video script with scene breakdowns, matching visuals, and narration in simple but powerful Hindi. The narration should be emotionally resonant, rooted in Hindu devotional themes.
+"${project.text}"
 
-Text to analyze: "${project.text}"
+निर्देश:
+1. हिंदी में सरल और शक्तिशाली भक्ति भाषा का उपयोग करें
+2. राम, कृष्ण, शिव जैसे देवताओं की कहानियां शामिल करें
+3. गीता के उपदेश, मंत्र, आरती का समावेश करें
+4. भक्ति रस से भरपूर सामग्री बनाएं
+5. हिंदी स्क्रिप्ट को JSON में वापस करें:
+{
+  "hindi_script": "...",
+  "theme": "...",
+  "duration": "...",
+  "devotional_elements": [...]
+}`
+              }]
+            }]
+          })
+        });
 
-Instructions:
-1. Structure the output as JSON with clear fields: scene_number, visual_description, narration_text, background_music, duration
-2. Ensure each narration line is no longer than 20 seconds when spoken
-3. Write the narration in simple spoken Hindi with poetic and spiritual flair
-4. Themes may include: stories of gods (Ram, Krishna, Shiva), teachings from the Gita, mantras, aarti, bhakti stories, festivals like Diwali, Navratri, etc
-5. Background music should be instrumental devotional music suggestions (e.g., "soft flute Krishna melody", "slow Shiva damru beats")
-6. Create compelling visuals that match Hindu iconography and spiritual themes
+        if (!response.ok) {
+          // Try with second API key
+          const secondApiKey = apiKeys.gemini[1];
+          if (secondApiKey) {
+            const retryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${secondApiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [{
+                    text: `आप एक हिंदू धार्मिक वीडियो सामग्री विशेषज्ञ हैं। इस टेक्स्ट का विश्लेषण करके हिंदी में भावनात्मक और आध्यात्मिक स्क्रिप्ट बनाएं: "${project.text}"`
+                  }]
+                }]
+              })
+            });
+            
+            if (!retryResponse.ok) throw new Error('Both Gemini API keys failed');
+            
+            const data = await retryResponse.json();
+            return { 
+              analyzed: true, 
+              hindi_script: data.candidates[0].content.parts[0].text,
+              theme: 'hindu_religious'
+            };
+          }
+          throw new Error('Gemini API call failed');
+        }
 
-Generate a complete video script based on this analysis.`;
-
-        await simulateAPICall(3000);
+        const data = await response.json();
+        const hindiScript = data.candidates[0].content.parts[0].text;
+        
+        // Update project with Hindi script
+        setProject(prev => ({
+          ...prev,
+          text: hindiScript
+        }));
+        
         return { 
           analyzed: true, 
-          sentiment: 'devotional',
-          theme: 'hindu_religious',
-          script_generated: true 
+          hindi_script: hindiScript,
+          theme: 'hindu_religious'
         };
       });
 
