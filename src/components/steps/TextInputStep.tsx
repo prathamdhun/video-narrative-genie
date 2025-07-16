@@ -3,13 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { FileText, ArrowRight, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { FileText, ArrowRight, Sparkles, Timer, Image } from 'lucide-react';
 import { useVideo } from '@/contexts/VideoContext';
 import { toast } from '@/hooks/use-toast';
 
 export const TextInputStep: React.FC = () => {
   const { project, setProject, currentStep, setCurrentStep } = useVideo();
   const [text, setText] = useState(project.text || '');
+  const [videoDuration, setVideoDuration] = useState(project.videoDuration || 30);
+  const [generateImage, setGenerateImage] = useState(project.generateImage !== false);
 
   const handleNext = () => {
     if (!text.trim()) {
@@ -33,6 +37,8 @@ export const TextInputStep: React.FC = () => {
     setProject(prev => ({
       ...prev,
       text,
+      videoDuration,
+      generateImage,
       status: 'processing',
       updatedAt: new Date(),
     }));
@@ -92,6 +98,46 @@ export const TextInputStep: React.FC = () => {
               <span className={text.length >= 10 ? "text-video-success" : "text-video-warning"}>
                 {text.length >= 10 ? "Ready to proceed" : "Minimum 10 characters"}
               </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="duration" className="flex items-center gap-2">
+                <Timer className="w-4 h-4 text-primary" />
+                Video Duration (seconds)
+              </Label>
+              <Input
+                id="duration"
+                type="number"
+                value={videoDuration}
+                onChange={(e) => setVideoDuration(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
+                min="5"
+                max="300"
+                className="focus:ring-primary/50 focus:border-primary/50"
+              />
+              <p className="text-xs text-muted-foreground">
+                Between 5-300 seconds
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Image className="w-4 h-4 text-primary" />
+                Generate Background Image
+              </Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={generateImage}
+                  onCheckedChange={setGenerateImage}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {generateImage ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Auto-generate background visuals
+              </p>
             </div>
           </div>
 

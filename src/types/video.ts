@@ -7,6 +7,8 @@ export interface VideoProject {
   imageUrl?: string;
   musicUrl?: string;
   videoUrl?: string;
+  videoDuration?: number; // in seconds
+  generateImage?: boolean; // make image generation optional
   status: 'text-input' | 'processing' | 'voice-generation' | 'image-generation' | 'music-upload' | 'video-generation' | 'completed';
   createdAt: Date;
   updatedAt: Date;

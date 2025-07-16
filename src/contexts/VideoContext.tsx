@@ -34,6 +34,8 @@ export const VideoProvider: React.FC<VideoProviderProps> = ({ children }) => {
     text: '',
     voiceGender: 'female',
     voiceLanguage: 'en-IN',
+    videoDuration: 30, // default 30 seconds
+    generateImage: true, // default true
     status: 'text-input',
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -41,7 +43,7 @@ export const VideoProvider: React.FC<VideoProviderProps> = ({ children }) => {
 
   const [apiKeys, setApiKeys] = useState<APIKeys>({
     gemini: ['AIzaSyCiNQZ_dDiNOXFlml2dYHzLuhlStgB77ns', 'AIzaSyDaWQKu2mWPzwcoMATuIDPiQdH-Amv8WRE'],
-    openai: ['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'],
+    openai: ['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'],
     json2video: ['UYEWVaMnTRIeyggZ9f9Z3KXEXvZemKiggrFBIngv', 'FkKgTkegkAtMqBxOV88b80IfYQghIUZl1ERWDEDn'],
     responsiveVoice: ['XSQCpWYt'],
   });

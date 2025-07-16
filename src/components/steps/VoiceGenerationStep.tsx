@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Mic, 
   Play, 
@@ -11,7 +12,8 @@ import {
   Download, 
   ArrowRight,
   ArrowLeft,
-  Volume2 
+  Volume2,
+  Edit3
 } from 'lucide-react';
 import { useVideo } from '@/contexts/VideoContext';
 import { toast } from '@/hooks/use-toast';
@@ -40,11 +42,13 @@ export const VoiceGenerationStep: React.FC = () => {
   const { project, setProject, currentStep, setCurrentStep, apiKeys } = useVideo();
   const [selectedVoice, setSelectedVoice] = useState(voiceOptions[0].id);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
+  const [generatedAudio, setGeneratedAudio] = useState<string | null>(project.audioUrl || null);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
+  const [voiceText, setVoiceText] = useState(project.text);
+  const [isEditing, setIsEditing] = useState(false);
 
   const generateVoiceover = async () => {
-    if (!selectedVoice || !project.text) return;
+    if (!selectedVoice || !voiceText.trim()) return;
     
     setIsGenerating(true);
     try {
@@ -55,18 +59,20 @@ export const VoiceGenerationStep: React.FC = () => {
       await new Promise<void>((resolve, reject) => {
         if (typeof window !== 'undefined' && (window as any).responsiveVoice) {
           (window as any).responsiveVoice.speak(
-            project.text,
+            voiceText,
             selectedVoiceOption.responsiveVoiceName,
             {
               onend: () => {
                 const audioUrl = `generated-audio-${Date.now()}.mp3`;
                 setProject(prev => ({
                   ...prev,
+                  text: voiceText, // Update project text with edited voice text
                   audioUrl,
                   voiceGender: selectedVoiceOption.gender,
                   voiceLanguage: selectedVoiceOption.language
                 }));
                 setGeneratedAudio(audioUrl);
+                setIsEditing(false);
                 resolve();
               },
               onerror: () => reject(new Error('Voice generation failed'))
@@ -124,13 +130,17 @@ export const VoiceGenerationStep: React.FC = () => {
       return;
     }
 
+    // Skip image generation if disabled
+    const nextStatus = project.generateImage ? 'image-generation' : 'music-upload';
+    const nextStep = project.generateImage ? currentStep + 1 : currentStep + 2;
+
     setProject(prev => ({
       ...prev,
-      status: 'image-generation',
+      status: nextStatus,
       updatedAt: new Date(),
     }));
 
-    setCurrentStep(currentStep + 1);
+    setCurrentStep(nextStep);
   };
 
   return (
@@ -206,17 +216,36 @@ export const VoiceGenerationStep: React.FC = () => {
 
         <Card className="shadow-card bg-gradient-card border-border/50">
           <CardHeader>
-            <CardTitle>Generate Sacred Voiceover</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              Generate Sacred Voiceover
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                <Edit3 className="w-4 h-4 mr-2" />
+                {isEditing ? 'Preview' : 'Edit Text'}
+              </Button>
+            </CardTitle>
             <CardDescription>
-              Create your devotional voiceover using ResponsiveVoice API
+              Create your devotional voiceover using ResponsiveVoice API. Only text is needed for voice generation.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-4 bg-muted/50 rounded-lg">
               <p className="text-sm font-medium mb-2">Sacred Text to convert:</p>
-              <p className="text-sm text-muted-foreground line-clamp-4">
-                {project.text}
-              </p>
+              {isEditing ? (
+                <Textarea
+                  value={voiceText}
+                  onChange={(e) => setVoiceText(e.target.value)}
+                  className="min-h-[100px] text-sm"
+                  placeholder="Edit your text for voice generation..."
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground line-clamp-4">
+                  {voiceText}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-center">

@@ -130,7 +130,7 @@ export const VideoGenerationStep: React.FC = () => {
         output: {
           format: "mp4",
           quality: "1080p",
-          duration: "auto",
+          duration: project.videoDuration || 30,
           aspect_ratio: "16:9",
           theme: "hindu_devotional"
         }
