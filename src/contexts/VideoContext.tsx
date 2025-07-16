@@ -40,10 +40,10 @@ export const VideoProvider: React.FC<VideoProviderProps> = ({ children }) => {
   });
 
   const [apiKeys, setApiKeys] = useState<APIKeys>({
-    gemini: [],
-    openai: [],
-    json2video: [],
-    googleTTS: [],
+    gemini: ['AIzaSyCiNQZ_dDiNOXFlml2dYHzLuhlStgB77ns', 'AIzaSyDaWQKu2mWPzwcoMATuIDPiQdH-Amv8WRE'],
+    openai: ['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'],
+    json2video: ['UYEWVaMnTRIeyggZ9f9Z3KXEXvZemKiggrFBIngv', 'FkKgTkegkAtMqBxOV88b80IfYQghIUZl1ERWDEDn'],
+    responsiveVoice: ['XSQCpWYt'],
   });
 
   const [currentStep, setCurrentStep] = useState(0);

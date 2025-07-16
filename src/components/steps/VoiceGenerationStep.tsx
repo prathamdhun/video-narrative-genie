@@ -19,73 +19,72 @@ import { VoiceOption } from '@/types/video';
 
 const voiceOptions: VoiceOption[] = [
   {
-    id: 'female-indian-1',
-    name: 'Priya',
+    id: 'hindi-female',
+    name: 'Hindi Female Voice',
     gender: 'female',
-    language: 'en-IN',
-    accent: 'Indian English',
-    preview: '/audio/preview-female-indian.mp3'
+    language: 'hi-IN',
+    accent: 'Indian',
+    responsiveVoiceName: 'Hindi Female'
   },
   {
-    id: 'male-indian-1',
-    name: 'Arjun',
+    id: 'hindi-male', 
+    name: 'Hindi Male Voice',
     gender: 'male',
-    language: 'en-IN',
-    accent: 'Indian English',
-    preview: '/audio/preview-male-indian.mp3'
-  },
-  {
-    id: 'female-indian-2',
-    name: 'Ananya',
-    gender: 'female',
-    language: 'en-IN',
-    accent: 'Indian English - Soft',
-    preview: '/audio/preview-female-indian-2.mp3'
-  },
-  {
-    id: 'male-indian-2',
-    name: 'Vikram',
-    gender: 'male',
-    language: 'en-IN',
-    accent: 'Indian English - Deep',
-    preview: '/audio/preview-male-indian-2.mp3'
-  },
+    language: 'hi-IN',
+    accent: 'Indian',
+    responsiveVoiceName: 'Hindi Male'
+  }
 ];
 
 export const VoiceGenerationStep: React.FC = () => {
-  const { project, setProject, currentStep, setCurrentStep } = useVideo();
+  const { project, setProject, currentStep, setCurrentStep, apiKeys } = useVideo();
   const [selectedVoice, setSelectedVoice] = useState(voiceOptions[0].id);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState<string | null>(null);
 
   const generateVoiceover = async () => {
-    setIsGenerating(true);
+    if (!selectedVoice || !project.text) return;
     
+    setIsGenerating(true);
     try {
-      // Simulate Google Text-to-Speech API call
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // In real implementation, this would be the actual audio URL from Google TTS
-      const audioUrl = `/audio/generated-${selectedVoice}-${Date.now()}.mp3`;
-      setGeneratedAudio(audioUrl);
-      
-      setProject(prev => ({
-        ...prev,
-        audioUrl,
-        voiceGender: voiceOptions.find(v => v.id === selectedVoice)?.gender || 'female',
-        updatedAt: new Date(),
-      }));
+      const selectedVoiceOption = voiceOptions.find(v => v.id === selectedVoice);
+      if (!selectedVoiceOption) throw new Error('Voice not found');
 
-      toast({
-        title: "Voiceover Generated",
-        description: "Your voiceover has been successfully created using Google Text-to-Speech.",
+      // Use ResponsiveVoice to generate speech
+      await new Promise<void>((resolve, reject) => {
+        if (typeof window !== 'undefined' && (window as any).responsiveVoice) {
+          (window as any).responsiveVoice.speak(
+            project.text,
+            selectedVoiceOption.responsiveVoiceName,
+            {
+              onend: () => {
+                const audioUrl = `generated-audio-${Date.now()}.mp3`;
+                setProject(prev => ({
+                  ...prev,
+                  audioUrl,
+                  voiceGender: selectedVoiceOption.gender,
+                  voiceLanguage: selectedVoiceOption.language
+                }));
+                setGeneratedAudio(audioUrl);
+                resolve();
+              },
+              onerror: () => reject(new Error('Voice generation failed'))
+            }
+          );
+        } else {
+          reject(new Error('ResponsiveVoice not loaded'));
+        }
       });
-
+      
+      toast({
+        title: "Divine Voiceover Generated",
+        description: "Your sacred narration has been created successfully using ResponsiveVoice.",
+      });
     } catch (error) {
       toast({
-        title: "Generation Failed",
-        description: "Failed to generate voiceover. Please try again or select a different voice.",
+        title: "Voice Generation Failed",
+        description: "Failed to generate voiceover. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -94,14 +93,21 @@ export const VoiceGenerationStep: React.FC = () => {
   };
 
   const playPreview = (voiceId: string) => {
-    // In real implementation, this would play the actual preview
-    setIsPlaying(true);
-    setTimeout(() => setIsPlaying(false), 2000);
+    const voice = voiceOptions.find(v => v.id === voiceId);
+    if (!voice) return;
     
-    toast({
-      title: "Voice Preview",
-      description: `Playing preview for ${voiceOptions.find(v => v.id === voiceId)?.name}`,
-    });
+    setIsPlaying(voiceId);
+    
+    if (typeof window !== 'undefined' && (window as any).responsiveVoice) {
+      (window as any).responsiveVoice.speak(
+        "नमस्ते, मैं आपका भक्ति वॉइस असिस्टेंट हूं। राम राम।",
+        voice.responsiveVoiceName,
+        {
+          onend: () => setIsPlaying(null),
+          onerror: () => setIsPlaying(null)
+        }
+      );
+    }
   };
 
   const handlePrevious = () => {
@@ -112,7 +118,7 @@ export const VoiceGenerationStep: React.FC = () => {
     if (!generatedAudio) {
       toast({
         title: "Voiceover Required",
-        description: "Please generate a voiceover before proceeding.",
+        description: "Please generate a voiceover before proceeding to the next step.",
         variant: "destructive",
       });
       return;
@@ -134,11 +140,11 @@ export const VoiceGenerationStep: React.FC = () => {
           <Mic className="w-8 h-8 text-primary-foreground" />
         </div>
         <h2 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-          Voice Generation
+          Divine Voice Generation
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          We will now generate the voiceover for your text using Google Text-to-Speech with 
-          natural Indian voices. Please choose your preferred voice and generate the audio.
+          We will now generate the sacred voiceover for your Hindu devotional content using ResponsiveVoice with 
+          natural Indian voices. Choose your preferred voice and create divine narration.
         </p>
       </div>
 
@@ -147,10 +153,10 @@ export const VoiceGenerationStep: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Volume2 className="w-5 h-5 text-primary" />
-              Select Voice
+              Select Sacred Voice
             </CardTitle>
             <CardDescription>
-              Choose from our natural-sounding Indian English voices
+              Choose from our natural-sounding Hindi voices for devotional content
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -185,9 +191,9 @@ export const VoiceGenerationStep: React.FC = () => {
                             e.preventDefault();
                             playPreview(voice.id);
                           }}
-                          disabled={isPlaying}
+                          disabled={isPlaying === voice.id}
                         >
-                          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          {isPlaying === voice.id ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                         </Button>
                       </div>
                     </Card>
@@ -200,14 +206,14 @@ export const VoiceGenerationStep: React.FC = () => {
 
         <Card className="shadow-card bg-gradient-card border-border/50">
           <CardHeader>
-            <CardTitle>Generate Voiceover</CardTitle>
+            <CardTitle>Generate Sacred Voiceover</CardTitle>
             <CardDescription>
-              Create your voiceover using Google Text-to-Speech API
+              Create your devotional voiceover using ResponsiveVoice API
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm font-medium mb-2">Text to convert:</p>
+              <p className="text-sm font-medium mb-2">Sacred Text to convert:</p>
               <p className="text-sm text-muted-foreground line-clamp-4">
                 {project.text}
               </p>
@@ -224,12 +230,12 @@ export const VoiceGenerationStep: React.FC = () => {
                 {isGenerating ? (
                   <>
                     <Mic className="w-4 h-4 mr-2 animate-pulse" />
-                    Generating...
+                    Generating Divine Voice...
                   </>
                 ) : (
                   <>
                     <Mic className="w-4 h-4 mr-2" />
-                    Generate Voiceover
+                    Generate Sacred Voiceover
                   </>
                 )}
               </Button>
@@ -243,7 +249,7 @@ export const VoiceGenerationStep: React.FC = () => {
                       <Volume2 className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <p className="font-medium text-video-success">Voiceover Generated</p>
+                      <p className="font-medium text-video-success">Divine Voiceover Generated</p>
                       <p className="text-sm text-muted-foreground">
                         Voice: {voiceOptions.find(v => v.id === selectedVoice)?.name}
                       </p>
@@ -262,55 +268,30 @@ export const VoiceGenerationStep: React.FC = () => {
                 </div>
               </Card>
             )}
-
-            {generatedAudio && (
-              <div className="flex justify-between pt-4">
-                <Button
-                  onClick={handlePrevious}
-                  variant="outline"
-                  size="lg"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Previous
-                </Button>
-
-                <Button
-                  onClick={handleNext}
-                  size="lg"
-                  variant="hero"
-                  className="min-w-32"
-                >
-                  Next Step
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
 
-        {!generatedAudio && (
-          <div className="flex justify-between pt-4">
-            <Button
-              onClick={handlePrevious}
-              variant="outline"
-              size="lg"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
+        <div className="flex justify-between pt-4">
+          <Button
+            onClick={handlePrevious}
+            variant="outline"
+            size="lg"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Previous
+          </Button>
 
-            <Button
-              onClick={handleNext}
-              size="lg"
-              variant="hero"
-              className="min-w-32"
-              disabled={!generatedAudio}
-            >
-              Next Step
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-        )}
+          <Button
+            onClick={handleNext}
+            size="lg"
+            variant="hero"
+            className="min-w-32"
+            disabled={!generatedAudio}
+          >
+            Next Step
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ export interface APIKeys {
   gemini: string[];
   openai: string[];
   json2video: string[];
-  googleTTS: string[];
+  responsiveVoice: string[];
 }
 
 export interface ProcessingStep {
@@ -34,5 +34,5 @@ export interface VoiceOption {
   gender: 'male' | 'female';
   language: string;
   accent: string;
-  preview?: string;
+  responsiveVoiceName: string;
 }

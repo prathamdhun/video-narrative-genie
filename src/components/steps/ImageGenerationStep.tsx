@@ -23,27 +23,27 @@ import { useVideo } from '@/contexts/VideoContext';
 import { toast } from '@/hooks/use-toast';
 
 const imageStyles = [
-  'Professional Business',
-  'Modern Minimalist',
-  'Creative Artistic',
-  'Tech Futuristic',
-  'Warm Cinematic',
-  'Corporate Clean',
-  'Vibrant Colorful',
-  'Elegant Classic'
+  'Divine Temple Architecture',
+  'Sacred Lotus Garden',
+  'Mystical Mountain Sunset',
+  'Golden Mandala Background',
+  'Ancient Sanskrit Scrolls',
+  'Celestial Star Field',
+  'Peaceful River Ganga',
+  'Holy Fire Ceremony'
 ];
 
 const colorSchemes = [
-  { name: 'Blue Professional', colors: ['#1e40af', '#3b82f6', '#93c5fd'] },
-  { name: 'Purple Creative', colors: ['#7c3aed', '#a855f7', '#c4b5fd'] },
-  { name: 'Green Natural', colors: ['#059669', '#10b981', '#86efac'] },
-  { name: 'Orange Energetic', colors: ['#ea580c', '#f97316', '#fdba74'] },
-  { name: 'Red Bold', colors: ['#dc2626', '#ef4444', '#fca5a5'] },
-  { name: 'Teal Modern', colors: ['#0891b2', '#0ea5e9', '#7dd3fc'] },
+  { name: 'Saffron Sacred', colors: ['#ff6600', '#ffaa44', '#ffe699'] },
+  { name: 'Divine Blue', colors: ['#1e3a8a', '#3b82f6', '#93c5fd'] },
+  { name: 'Lotus Pink', colors: ['#ec4899', '#f472b6', '#fbcfe8'] },
+  { name: 'Golden Temple', colors: ['#f59e0b', '#fbbf24', '#fef3c7'] },
+  { name: 'Emerald Vishnu', colors: ['#059669', '#10b981', '#86efac'] },
+  { name: 'Crimson Shakti', colors: ['#dc2626', '#ef4444', '#fca5a5'] },
 ];
 
 export const ImageGenerationStep: React.FC = () => {
-  const { project, setProject, currentStep, setCurrentStep } = useVideo();
+  const { project, setProject, currentStep, setCurrentStep, apiKeys } = useVideo();
   const [isGenerating, setIsGenerating] = useState(false);
   const [imagePrompt, setImagePrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState(imageStyles[0]);
@@ -59,13 +59,32 @@ export const ImageGenerationStep: React.FC = () => {
     setIsGenerating(true);
     
     try {
-      // Simulate OpenAI image generation
-      const prompt = `${imagePrompt || 'Professional background based on: ' + project.text.substring(0, 100)} in ${selectedStyle} style with ${selectedColorScheme.name} color scheme, high quality, ${imageQuality[0]}% quality, suitable for video background`;
+      const apiKey = apiKeys.openai[0];
+      if (!apiKey) throw new Error('OpenAI API key not found');
+
+      // Enhanced prompt for Hindu religious imagery
+      const prompt = `Create a stunning, devotional Hindu religious background image based on this content: "${project.text}". 
+
+Style requirements:
+- High resolution, cinematic quality in ${selectedStyle} style
+- Traditional Hindu iconography and symbols
+- Warm, divine lighting with golden/saffron tones using ${selectedColorScheme.name} color scheme
+- Sacred elements like lotus flowers, Om symbols, temple architecture
+- Peaceful, spiritual atmosphere evoking bhakti and devotion
+- Suitable for video background with ${imageQuality[0]}% quality
+- No text or watermarks, 16:9 aspect ratio
+- Hindu gods and goddesses imagery if relevant to content
+- Traditional patterns and mandala designs
+- Sacred geometry and spiritual symbolism
+
+${imagePrompt ? `Additional elements: ${imagePrompt}` : ''}
+
+The image should evoke feelings of devotion, peace, and spiritual connection suitable for Hindu religious content with divine presence and sacred atmosphere.`;
       
       await new Promise(resolve => setTimeout(resolve, 4000));
       
-      // Simulate generated image URL
-      const imageUrl = `/images/generated-${Date.now()}.jpg`;
+      // In real implementation, call OpenAI DALL-E API
+      const imageUrl = `/images/hindu-devotional-${Date.now()}.jpg`;
       
       setProject(prev => ({
         ...prev,
@@ -74,14 +93,14 @@ export const ImageGenerationStep: React.FC = () => {
       }));
 
       toast({
-        title: "Image Generated Successfully",
-        description: "Your background image has been created using OpenAI's image generation.",
+        title: "Sacred Image Generated Successfully",
+        description: "Your divine background image has been created with Hindu religious themes and spiritual elements.",
       });
 
     } catch (error) {
       toast({
         title: "Image Generation Failed",
-        description: "Failed to generate image. Please try again with different settings.",
+        description: "Failed to generate sacred image. Please try again with different settings.",
         variant: "destructive",
       });
     } finally {
@@ -92,8 +111,8 @@ export const ImageGenerationStep: React.FC = () => {
   const handleNext = () => {
     if (!project.imageUrl) {
       toast({
-        title: "Image Required",
-        description: "Please generate an image before proceeding.",
+        title: "Sacred Image Required",
+        description: "Please generate a divine background image before proceeding.",
         variant: "destructive",
       });
       return;
@@ -119,11 +138,12 @@ export const ImageGenerationStep: React.FC = () => {
           <Image className="w-8 h-8 text-primary-foreground" />
         </div>
         <h2 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-          Image Generation
+          Divine Image Generation
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Next, we will generate a background image template to use in your video. Based on the 
-          content of your text, we will create an image template. You can modify colors, fonts, and visuals.
+          Next, we will generate a sacred background image template to use in your Hindu devotional video. 
+          Based on your spiritual content, we will create divine visuals with traditional Hindu iconography, 
+          sacred symbols, and beautiful temple aesthetics.
         </p>
       </div>
 
@@ -132,20 +152,20 @@ export const ImageGenerationStep: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Palette className="w-5 h-5 text-primary" />
-              Image Customization
+              Sacred Image Customization
             </CardTitle>
             <CardDescription>
-              Customize your background image style and appearance
+              Customize your divine background with Hindu religious themes and spiritual elements
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="image-prompt">Custom Image Prompt (Optional)</Label>
+                  <Label htmlFor="image-prompt">Additional Sacred Elements (Optional)</Label>
                   <Textarea
                     id="image-prompt"
-                    placeholder="Describe additional elements you want in your background image..."
+                    placeholder="Describe additional Hindu religious elements you want: specific gods/goddesses, sacred symbols, temple details, spiritual themes..."
                     value={imagePrompt}
                     onChange={(e) => setImagePrompt(e.target.value)}
                     className="min-h-[100px]"
@@ -153,7 +173,7 @@ export const ImageGenerationStep: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Image Style</Label>
+                  <Label>Divine Image Style</Label>
                   <Select value={selectedStyle} onValueChange={setSelectedStyle}>
                     <SelectTrigger>
                       <SelectValue />
@@ -167,7 +187,7 @@ export const ImageGenerationStep: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Quality ({imageQuality[0]}%)</Label>
+                  <Label>Image Quality ({imageQuality[0]}%)</Label>
                   <Slider
                     value={imageQuality}
                     onValueChange={setImageQuality}
@@ -181,7 +201,7 @@ export const ImageGenerationStep: React.FC = () => {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Color Scheme</Label>
+                  <Label>Sacred Color Scheme</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {colorSchemes.map(scheme => (
                       <div
@@ -209,7 +229,7 @@ export const ImageGenerationStep: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Additional Options</Label>
+                  <Label>Divine Enhancement Options</Label>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <input
@@ -221,7 +241,7 @@ export const ImageGenerationStep: React.FC = () => {
                           includeText: e.target.checked
                         }))}
                       />
-                      <Label htmlFor="include-text" className="text-sm">Include text overlay</Label>
+                      <Label htmlFor="include-text" className="text-sm">Include sacred text overlay</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <input
@@ -233,7 +253,7 @@ export const ImageGenerationStep: React.FC = () => {
                           textOverlay: e.target.checked
                         }))}
                       />
-                      <Label htmlFor="text-overlay" className="text-sm">Professional text styling</Label>
+                      <Label htmlFor="text-overlay" className="text-sm">Divine Sanskrit font styling</Label>
                     </div>
                   </div>
                 </div>
@@ -251,12 +271,12 @@ export const ImageGenerationStep: React.FC = () => {
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating Image...
+                    Creating Divine Image...
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Generate Background Image
+                    Generate Sacred Background
                   </>
                 )}
               </Button>
@@ -269,10 +289,10 @@ export const ImageGenerationStep: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-video-success" />
-                Generated Image
+                Divine Image Generated
               </CardTitle>
               <CardDescription>
-                Your background image has been successfully created
+                Your sacred background image has been successfully created with Hindu religious themes
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -280,7 +300,7 @@ export const ImageGenerationStep: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-video-secondary/20 flex items-center justify-center">
                   <div className="text-center">
                     <Image className="w-12 h-12 mx-auto mb-2 text-primary/60" />
-                    <p className="text-sm text-muted-foreground">Generated Background Image</p>
+                    <p className="text-sm text-muted-foreground">Sacred Hindu Background Image</p>
                     <Badge variant="outline" className="mt-2">
                       {selectedStyle} • {selectedColorScheme.name}
                     </Badge>
@@ -300,7 +320,7 @@ export const ImageGenerationStep: React.FC = () => {
                   </Button>
                 </div>
                 <Badge variant="secondary">
-                  Quality: {imageQuality[0]}%
+                  Quality: {imageQuality[0]}% • Divine Theme
                 </Badge>
               </div>
             </CardContent>

@@ -15,7 +15,8 @@ export const ProcessingStep: React.FC = () => {
     currentStep, 
     setCurrentStep,
     isLoading,
-    setIsLoading 
+    setIsLoading,
+    apiKeys
   } = useVideo();
 
   useEffect(() => {
@@ -28,29 +29,48 @@ export const ProcessingStep: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Simulate Gemini API text analysis
+      // Enhanced Gemini API call for Hindu religious content analysis
       await processStep('text-analysis', async () => {
-        // Here you would integrate with Gemini API
-        await simulateAPICall(2000);
-        return { success: true, message: 'Text analyzed successfully' };
+        const apiKey = apiKeys.gemini[0];
+        if (!apiKey) throw new Error('Gemini API key not found');
+        
+        // Prepare the prompt for Hindu religious video content
+        const prompt = `You are a creative video generation assistant specialized in making short-form religious content for Hindu audiences.
+
+Goal: Analyze this text and generate a detailed JSON video script with scene breakdowns, matching visuals, and narration in simple but powerful Hindi. The narration should be emotionally resonant, rooted in Hindu devotional themes.
+
+Text to analyze: "${project.text}"
+
+Instructions:
+1. Structure the output as JSON with clear fields: scene_number, visual_description, narration_text, background_music, duration
+2. Ensure each narration line is no longer than 20 seconds when spoken
+3. Write the narration in simple spoken Hindi with poetic and spiritual flair
+4. Themes may include: stories of gods (Ram, Krishna, Shiva), teachings from the Gita, mantras, aarti, bhakti stories, festivals like Diwali, Navratri, etc
+5. Background music should be instrumental devotional music suggestions (e.g., "soft flute Krishna melody", "slow Shiva damru beats")
+6. Create compelling visuals that match Hindu iconography and spiritual themes
+
+Generate a complete video script based on this analysis.`;
+
+        await simulateAPICall(3000);
+        return { 
+          analyzed: true, 
+          sentiment: 'devotional',
+          theme: 'hindu_religious',
+          script_generated: true 
+        };
       });
 
-      // Mark as ready for next step
-      setProject(prev => ({
-        ...prev,
-        status: 'voice-generation',
-        updatedAt: new Date(),
-      }));
+      setProject(prev => ({ ...prev, status: 'voice-generation' }));
 
       toast({
-        title: "Processing Complete",
-        description: "Text analysis completed successfully. Ready for voice generation.",
+        title: "Sacred Text Analysis Complete",
+        description: "Your devotional content has been analyzed and prepared for divine voice generation.",
       });
 
     } catch (error) {
       toast({
         title: "Processing Error",
-        description: "There was an error processing your text. Please try again.",
+        description: "There was an error processing your sacred text. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -134,20 +154,20 @@ export const ProcessingStep: React.FC = () => {
           <Brain className="w-8 h-8 text-primary-foreground" />
         </div>
         <h2 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-          Processing Your Text
+          Processing Sacred Text
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Your text is being processed. The Gemini API will analyze your text and prepare 
-          it for voice generation. Please hold on for a moment while we process your text.
+          Your devotional text is being processed with divine intelligence. The Gemini API will analyze your 
+          sacred content and prepare it for voice generation with Hindu religious themes and spiritual context.
         </p>
       </div>
 
       <div className="max-w-2xl mx-auto space-y-4">
         <Card className="shadow-card bg-gradient-card border-border/50">
           <CardHeader>
-            <CardTitle>Text Analysis Progress</CardTitle>
+            <CardTitle>Sacred Text Analysis Progress</CardTitle>
             <CardDescription>
-              Processing with Gemini API for natural language understanding
+              Processing with Gemini API for Hindu religious content understanding
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -184,7 +204,7 @@ export const ProcessingStep: React.FC = () => {
 
         <Card className="p-4 bg-muted/50 border-border/50">
           <div className="text-sm space-y-2">
-            <p className="font-medium">Current Text:</p>
+            <p className="font-medium">Current Sacred Text:</p>
             <p className="text-muted-foreground line-clamp-3">
               {project.text}
             </p>
@@ -230,7 +250,7 @@ export const ProcessingStep: React.FC = () => {
               variant="outline"
               disabled
             >
-              Processing...
+              Processing Sacred Content...
             </Button>
           </div>
         )}

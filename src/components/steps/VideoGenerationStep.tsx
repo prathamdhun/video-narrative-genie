@@ -35,46 +35,47 @@ export const VideoGenerationStep: React.FC = () => {
     currentStep, 
     setCurrentStep,
     isLoading,
-    setIsLoading 
+    setIsLoading,
+    apiKeys
   } = useVideo();
 
   const [videoSteps, setVideoSteps] = useState<VideoGenerationStep[]>([
     {
       id: 'preparation',
-      title: 'Preparing Assets',
-      description: 'Organizing audio, image, and text components',
+      title: 'Preparing Sacred Assets',
+      description: 'Organizing divine audio, sacred image, and devotional text',
       status: 'pending',
       progress: 0,
       duration: 2000
     },
     {
       id: 'audio-sync',
-      title: 'Audio Synchronization',
-      description: 'Syncing voiceover with background music',
+      title: 'Devotional Audio Sync',
+      description: 'Syncing sacred voiceover with devotional background music',
       status: 'pending',
       progress: 0,
       duration: 3000
     },
     {
       id: 'visual-composition',
-      title: 'Visual Composition',
-      description: 'Composing background image with text overlays',
+      title: 'Divine Visual Composition',
+      description: 'Composing sacred background with Hindu religious overlays',
       status: 'pending',
       progress: 0,
       duration: 4000
     },
     {
       id: 'video-rendering',
-      title: 'Video Rendering',
-      description: 'Rendering final video with json2video API',
+      title: 'Sacred Video Rendering',
+      description: 'Rendering final devotional video with json2video API',
       status: 'pending',
       progress: 0,
       duration: 5000
     },
     {
       id: 'finalization',
-      title: 'Finalization',
-      description: 'Optimizing and preparing for download',
+      title: 'Divine Finalization',
+      description: 'Optimizing spiritual content and preparing for devotees',
       status: 'pending',
       progress: 0,
       duration: 2000
@@ -94,29 +95,71 @@ export const VideoGenerationStep: React.FC = () => {
     setIsLoading(true);
     
     try {
+      const apiKey = apiKeys.json2video[0];
+      if (!apiKey) throw new Error('json2video API key not found');
+
+      // Enhanced json2video configuration for Hindu religious content
+      const videoConfig = {
+        template: "hindu_devotional",
+        scenes: [
+          {
+            narration: project.text,
+            background_image: project.imageUrl,
+            background_music: project.musicUrl || "devotional_instrumental",
+            voice_settings: {
+              language: project.voiceLanguage,
+              gender: project.voiceGender,
+              speed: 0.9,
+              pitch: 1.0
+            },
+            visual_effects: {
+              fade_in: true,
+              sacred_particles: true,
+              golden_glow: true,
+              divine_transitions: true,
+              om_symbol_overlay: true
+            },
+            religious_enhancements: {
+              lotus_petals: true,
+              sacred_geometry: true,
+              temple_bells: true,
+              divine_light_rays: true
+            }
+          }
+        ],
+        output: {
+          format: "mp4",
+          quality: "1080p",
+          duration: "auto",
+          aspect_ratio: "16:9",
+          theme: "hindu_devotional"
+        }
+      };
+
       for (let i = 0; i < videoSteps.length; i++) {
         setCurrentStepIndex(i);
-        await processVideoStep(i);
+        await processVideoStep(i, videoConfig);
       }
 
+      const response = await processVideoGeneration(videoConfig);
+
       // Mark video as completed
-      const videoUrl = `/videos/generated-${Date.now()}.mp4`;
       setProject(prev => ({
         ...prev,
-        videoUrl,
+        videoUrl: response.videoUrl,
         status: 'completed',
         updatedAt: new Date(),
       }));
 
       toast({
-        title: "Video Generated Successfully!",
-        description: "Your video has been created and is ready for preview and download.",
+        title: "Divine Video Created Successfully! 🙏",
+        description: "Your sacred Hindu devotional video has been blessed and is ready for devotees to watch.",
       });
 
     } catch (error) {
       toast({
         title: "Video Generation Failed",
-        description: "There was an error generating your video. Please try again.",
+        description: "There was an error creating your divine video. Please try again with different settings.",
         variant: "destructive",
       });
     } finally {
@@ -124,7 +167,7 @@ export const VideoGenerationStep: React.FC = () => {
     }
   };
 
-  const processVideoStep = async (stepIndex: number) => {
+  const processVideoStep = async (stepIndex: number, config: any) => {
     const step = videoSteps[stepIndex];
     
     // Update step to processing
@@ -134,7 +177,7 @@ export const VideoGenerationStep: React.FC = () => {
         : s
     ));
 
-    // Simulate progress
+    // Simulate progress with divine blessings
     const progressIncrement = 100 / (step.duration / 100);
     for (let progress = 0; progress <= 100; progress += progressIncrement) {
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -158,6 +201,20 @@ export const VideoGenerationStep: React.FC = () => {
         ? { ...s, status: 'completed', progress: 100 }
         : s
     ));
+  };
+
+  const processVideoGeneration = async (config: any) => {
+    // Simulate json2video API processing with enhanced Hindu content features
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    return {
+      videoUrl: `https://example.com/generated-hindu-devotional-video-${Date.now()}.mp4`,
+      duration: 120,
+      size: '45MB',
+      template_used: 'hindu_devotional',
+      effects_applied: ['sacred_particles', 'golden_glow', 'devotional_transitions', 'om_overlay', 'divine_light_rays'],
+      religious_blessings: ['lotus_petals', 'sacred_geometry', 'temple_bells', 'divine_atmosphere']
+    };
   };
 
   const getStepIcon = (status: string, stepId: string) => {
@@ -189,8 +246,8 @@ export const VideoGenerationStep: React.FC = () => {
   const handleNext = () => {
     if (!project.videoUrl) {
       toast({
-        title: "Video Generation In Progress",
-        description: "Please wait for the video generation to complete.",
+        title: "Divine Video Generation In Progress",
+        description: "Please wait for the sacred video creation to complete with divine blessings.",
         variant: "destructive",
       });
       return;
@@ -212,26 +269,26 @@ export const VideoGenerationStep: React.FC = () => {
           <Video className="w-8 h-8 text-primary-foreground" />
         </div>
         <h2 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-          Video Generation
+          Divine Video Creation
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          We're almost done! We will now generate your video, integrating the voiceover, 
-          background image, and music. Please hold on while we create your video.
+          We're almost done! We will now create your sacred Hindu devotional video, integrating the divine voiceover, 
+          sacred background imagery, and devotional music with special Hindu religious effects and spiritual blessings.
         </p>
       </div>
 
       <div className="max-w-3xl mx-auto space-y-6">
         <Card className="shadow-card bg-gradient-card border-border/50">
           <CardHeader>
-            <CardTitle>Video Generation Progress</CardTitle>
+            <CardTitle>Divine Video Generation Progress</CardTitle>
             <CardDescription>
-              Creating your video with json2video API
+              Creating your sacred video with json2video API and Hindu devotional enhancements
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Overall Progress</span>
+                <span className="text-sm font-medium">Overall Sacred Progress</span>
                 <span className="text-sm font-medium">{Math.round(overallProgress)}%</span>
               </div>
               <Progress value={overallProgress} className="w-full h-2" />
@@ -263,7 +320,7 @@ export const VideoGenerationStep: React.FC = () => {
                   
                   {step.status === 'error' && (
                     <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                      <p className="text-sm text-destructive">Error processing this step</p>
+                      <p className="text-sm text-destructive">Error processing this divine step</p>
                     </div>
                   )}
                 </div>
@@ -274,9 +331,9 @@ export const VideoGenerationStep: React.FC = () => {
 
         <Card className="shadow-card bg-gradient-card border-border/50">
           <CardHeader>
-            <CardTitle>Video Components</CardTitle>
+            <CardTitle>Sacred Video Components</CardTitle>
             <CardDescription>
-              Assets being integrated into your video
+              Divine assets being blessed and integrated into your devotional video
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -284,9 +341,9 @@ export const VideoGenerationStep: React.FC = () => {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <Mic className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="font-medium">Voiceover</p>
+                  <p className="font-medium">Divine Voiceover</p>
                   <p className="text-sm text-muted-foreground">
-                    {project.voiceGender} voice
+                    {project.voiceGender} Hindi voice
                   </p>
                 </div>
               </div>
@@ -294,9 +351,9 @@ export const VideoGenerationStep: React.FC = () => {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <ImageIcon className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="font-medium">Background</p>
+                  <p className="font-medium">Sacred Background</p>
                   <p className="text-sm text-muted-foreground">
-                    AI-generated image
+                    Hindu religious imagery
                   </p>
                 </div>
               </div>
@@ -304,9 +361,9 @@ export const VideoGenerationStep: React.FC = () => {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <Music className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="font-medium">Music</p>
+                  <p className="font-medium">Devotional Music</p>
                   <p className="text-sm text-muted-foreground">
-                    {project.musicUrl ? 'Custom audio' : 'No music'}
+                    {project.musicUrl ? 'Sacred audio' : 'Divine instrumental'}
                   </p>
                 </div>
               </div>
@@ -320,14 +377,15 @@ export const VideoGenerationStep: React.FC = () => {
               <div className="text-center">
                 <CheckCircle className="w-12 h-12 text-video-success mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-video-success mb-2">
-                  Video Generated Successfully!
+                  Divine Video Blessed and Ready! 🙏
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  Your video has been created and is ready for preview and download.
+                  Your sacred Hindu devotional video has been created with divine blessings and is ready 
+                  for preview and sharing with fellow devotees.
                 </p>
                 <Button variant="outline" size="sm">
                   <Play className="w-4 h-4 mr-2" />
-                  Preview Video
+                  Preview Sacred Video
                 </Button>
               </div>
             </CardContent>
