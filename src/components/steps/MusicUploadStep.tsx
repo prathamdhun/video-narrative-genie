@@ -116,13 +116,51 @@ export const MusicUploadStep: React.FC = () => {
     }
   };
 
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+
   const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
-    // In real implementation, this would control actual audio playback
-    toast({
-      title: isPlaying ? "Paused" : "Playing",
-      description: `${isPlaying ? "Paused" : "Playing"} background music preview`,
-    });
+    if (!project.musicUrl) return;
+
+    if (audioElement) {
+      // Stop current playback
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setAudioElement(null);
+      setIsPlaying(false);
+      return;
+    }
+
+    // Start playback
+    const audio = new Audio(project.musicUrl);
+    audio.onloadeddata = () => {
+      audio.play().catch(error => {
+        console.error('Error playing music:', error);
+        toast({
+          title: "Music Playback Error",
+          description: "Failed to play the uploaded music file.",
+          variant: "destructive",
+        });
+        setIsPlaying(false);
+      });
+    };
+    
+    audio.onerror = () => {
+      console.error('Music loading error');
+      toast({
+        title: "Music Loading Error",
+        description: "Failed to load the music file.",
+        variant: "destructive",
+      });
+      setIsPlaying(false);
+    };
+    
+    setAudioElement(audio);
+    setIsPlaying(true);
+    
+    audio.onended = () => {
+      setAudioElement(null);
+      setIsPlaying(false);
+    };
   };
 
   const handleNext = () => {

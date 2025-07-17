@@ -156,16 +156,37 @@ export const VoiceGenerationStep: React.FC = () => {
   const playGeneratedAudio = () => {
     if (!generatedAudio) return;
 
+    // If audio is currently playing, stop it
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setAudioElement(null);
+      return;
+    }
+
     // If it's a real audio URL (blob), play it
     if (generatedAudio.startsWith('blob:')) {
-      if (audioElement) {
-        audioElement.pause();
-        setAudioElement(null);
-        return;
-      }
-
       const audio = new Audio(generatedAudio);
-      audio.play();
+      audio.onloadeddata = () => {
+        audio.play().catch(error => {
+          console.error('Error playing audio:', error);
+          toast({
+            title: "Audio Playback Error",
+            description: "Failed to play the generated audio.",
+            variant: "destructive",
+          });
+        });
+      };
+      
+      audio.onerror = () => {
+        console.error('Audio loading error');
+        toast({
+          title: "Audio Loading Error", 
+          description: "Failed to load the generated audio file.",
+          variant: "destructive",
+        });
+      };
+      
       setAudioElement(audio);
       
       audio.onended = () => {
@@ -177,8 +198,21 @@ export const VoiceGenerationStep: React.FC = () => {
       if (selectedVoiceOption && typeof window !== 'undefined' && (window as any).responsiveVoice) {
         (window as any).responsiveVoice.speak(
           voiceText,
-          selectedVoiceOption.responsiveVoiceName
+          selectedVoiceOption.responsiveVoiceName,
+          {
+            onend: () => setAudioElement(null),
+            onerror: () => {
+              toast({
+                title: "Voice Playback Error",
+                description: "Failed to play the generated voice.",
+                variant: "destructive",
+              });
+              setAudioElement(null);
+            }
+          }
         );
+        // Set a dummy audio element to track playing state
+        setAudioElement({ pause: () => {}, currentTime: 0 } as HTMLAudioElement);
       }
     }
   };
